@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"newsapp/config"
 	"newsapp/delivery/httpserver"
+	"os"
+	"os/signal"
 )
 
 func main() {
@@ -15,4 +17,10 @@ func main() {
 	go func() {
 		server.Serve()
 	}()
+
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, os.Interrupt)
+
+	<-quit
+
 }
