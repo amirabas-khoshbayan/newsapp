@@ -9,7 +9,7 @@ import (
 )
 
 func main() {
-	//get config
+
 	cfg := config.GetConfig()
 	fmt.Println(cfg)
 
