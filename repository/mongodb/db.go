@@ -18,7 +18,7 @@ type MongoDB struct {
 	client *mongo.Client
 }
 
-func (m MongoDB) Connect() *mongo.Client {
+func (m MongoDB) Connection() *mongo.Client {
 	return m.client
 
 }

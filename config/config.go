@@ -7,9 +7,8 @@ type HttpServer struct {
 }
 
 type Config struct {
-	HttpServer HttpServer `yaml:"http_server"`
-
-	MongoDB mongodb.Config `yaml:"mongodb"`
+	HttpServer HttpServer     `yaml:"http_server"`
+	MongoDB    mongodb.Config `yaml:"mongodb"`
 }
 
 var AppConfig Config
