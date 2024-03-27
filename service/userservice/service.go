@@ -3,10 +3,12 @@ package userservice
 import (
 	"fmt"
 	"newsapp/entity"
+	"newsapp/param/userparam"
+	"time"
 )
 
 type Repository interface {
-	InsertUser(user entity.User) (string, error)
+	InsertUser(user entity.User) (entity.User, error)
 	GetUserByID(id string) (entity.User, error)
 	GetUsers() ([]entity.User, error)
 }
@@ -27,7 +29,6 @@ func (s Service) GetUsers() ([]entity.User, error) {
 		ID:          "",
 		FirstName:   "abbas",
 		LastName:    "Khoshbayan",
-		Age:         24,
 		PhoneNumber: "123456",
 	})
 	if err != nil {
@@ -37,4 +38,30 @@ func (s Service) GetUsers() ([]entity.User, error) {
 	fmt.Println(insertUser)
 
 	return userList, nil
+}
+func (s Service) CreateNewUser(req userparam.CreateNewUserRequest) (userparam.CreateNewUserResponse, error) {
+	//TODO - hash the password
+	user := entity.User{
+		FirstName:    req.FirstName,
+		LastName:     req.LastName,
+		PhoneNumber:  req.PhoneNumber,
+		Email:        req.Email,
+		UserName:     req.Username,
+		Password:     req.Password,
+		RegisterDate: time.Now(),
+	}
+
+	userRes, err := s.repo.InsertUser(user)
+	if err != nil {
+		return userparam.CreateNewUserResponse{}, err
+	}
+
+	return userparam.CreateNewUserResponse{userparam.UserInfo{
+		ID:          userRes.ID,
+		UserName:    userRes.UserName,
+		PhoneNumber: userRes.PhoneNumber,
+		FirstName:   userRes.FirstName,
+		LastName:    userRes.LastName,
+		Email:       userRes.Email,
+	}}, nil
 }
