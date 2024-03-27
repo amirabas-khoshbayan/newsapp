@@ -1,8 +1,9 @@
 package entity
 
 type User struct {
-	FirstName   string
-	LastName    string
-	Age         int
-	PhoneNumber string
+	ID          string `bson:"_id,omitempty"`
+	FirstName   string `bson:"first_name"`
+	LastName    string `bson:"last_name"`
+	Age         int    `bson:"age"`
+	PhoneNumber string `bson:"phone_number"`
 }

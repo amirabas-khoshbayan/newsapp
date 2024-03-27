@@ -19,6 +19,7 @@ func (h Handler) getUserList(c echo.Context) error {
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, echo.Map{"error": err.Error()})
 	}
+
 	return c.JSON(http.StatusOK, echo.Map{
 		"users": userList,
 	})

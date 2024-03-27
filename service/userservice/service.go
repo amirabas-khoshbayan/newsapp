@@ -1,8 +1,13 @@
 package userservice
 
-import "newsapp/entity"
+import (
+	"fmt"
+	"newsapp/entity"
+)
 
 type Repository interface {
+	InsertUser(user entity.User) (string, error)
+	GetUserByID(id string) (entity.User, error)
 	GetUsers() ([]entity.User, error)
 }
 
@@ -14,18 +19,22 @@ func New(repo Repository) Service {
 	return Service{repo: repo}
 }
 func (s Service) GetUsers() ([]entity.User, error) {
-	userList := []entity.User{{
-		FirstName:   "Abbas",
-		LastName:    "khosh",
-		Age:         34,
-		PhoneNumber: "09158346511",
-	},
-		{
-			FirstName:   "sss",
-			LastName:    "gggg",
-			Age:         34,
-			PhoneNumber: "09158346561",
-		}}
+	userList, err := s.repo.GetUsers()
+	if err != nil {
+		return nil, err
+	}
+	insertUser, err := s.repo.InsertUser(entity.User{
+		ID:          "",
+		FirstName:   "abbas",
+		LastName:    "Khoshbayan",
+		Age:         24,
+		PhoneNumber: "123456",
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	fmt.Println(insertUser)
 
 	return userList, nil
 }
