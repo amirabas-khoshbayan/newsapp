@@ -1,6 +1,8 @@
 http_server:
   port: 8080
+  use_custom_validator: true
 
 mongodb:
   host: "mongodb://localhost"
   port: 27017
+

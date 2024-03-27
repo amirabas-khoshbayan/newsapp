@@ -2,11 +2,13 @@ package httpserver
 
 import (
 	"fmt"
+	"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"newsapp/config"
 	"newsapp/delivery/httpserver/userhandler"
 	"newsapp/service/userservice"
+	"newsapp/validator/customvalidator"
 )
 
 type Server struct {
@@ -28,6 +30,10 @@ func (s Server) Serve() {
 	s.Echo.GET("/health-check", s.healthCheck)
 	s.userHandler.SetUserRoutes(s.Echo)
 
+	if config.AppConfig.HttpServer.UseCustomValidator {
+		s.Echo.Validator = &customvalidator.Custom{Validator: validator.New()}
+	}
+	
 	//start server
 	address := fmt.Sprintf(":%d", s.config.HttpServer.Port)
 	fmt.Printf("start echo server on %s\n", address)

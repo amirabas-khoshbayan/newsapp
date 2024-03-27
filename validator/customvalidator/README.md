@@ -1,0 +1,1 @@
+Please see https://pkg.go.dev/github.com/go-playground/validator/v10 for detailed usage docs.

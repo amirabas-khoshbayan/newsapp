@@ -21,6 +21,7 @@ func main() {
 	userSvc := userservice.New(userMongo)
 
 	server := httpserver.New(cfg, userSvc)
+
 	go func() {
 		server.Serve()
 	}()
