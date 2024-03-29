@@ -75,3 +75,12 @@ func (d DB) DeleteUserByID(id string) error {
 
 	return nil
 }
+func (d DB) GetUserByPhoneNumber(phoneNumber string) (entity.User, error) {
+	var user entity.User
+	err := d.UserCollection().FindOne(context.Background(), bson.D{{"phone_number", phoneNumber}}).Decode(&user)
+	if err != nil {
+		return entity.User{}, err
+	}
+
+	return user, nil
+}

@@ -5,17 +5,27 @@ type CreateNewUserRequest struct {
 	LastName    string `json:"last_name"`
 	PhoneNumber string `json:"phone_number" validate:"required"`
 	Email       string `json:"email"`
-	Username    string `json:"username"`
 	Password    string `json:"password" validate:"required"`
 }
+
 type UserInfo struct {
 	ID          string
-	UserName    string
 	PhoneNumber string
 	Email       string
 	FirstName   string
 	LastName    string
 }
+
 type CreateNewUserResponse struct {
 	UserInfo UserInfo
+}
+
+type LoginRequest struct {
+	PhoneNumber string `json:"phone_number" validate:"required"`
+	Password    string `json:"password" validate:"required"`
+}
+
+type LoginResponse struct {
+	User  UserInfo `json:"user"`
+	Token string
 }

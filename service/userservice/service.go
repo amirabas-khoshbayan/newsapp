@@ -10,15 +10,20 @@ import (
 type Repository interface {
 	InsertUser(user entity.User) (entity.User, error)
 	GetUserByID(id string) (entity.User, error)
+	GetUserByPhoneNumber(phoneNumber string) (entity.User, error)
 	GetUsers() ([]entity.User, error)
+}
+type AuthGenerator interface {
+	CreateToken(user entity.User) (string, error)
 }
 
 type Service struct {
 	repo Repository
+	auth AuthGenerator
 }
 
-func New(repo Repository) Service {
-	return Service{repo: repo}
+func New(repo Repository, authGenerator AuthGenerator) Service {
+	return Service{repo: repo, auth: authGenerator}
 }
 func (s Service) GetUsers() ([]entity.User, error) {
 	userList, err := s.repo.GetUsers()
@@ -46,7 +51,6 @@ func (s Service) CreateNewUser(req userparam.CreateNewUserRequest) (userparam.Cr
 		LastName:     req.LastName,
 		PhoneNumber:  req.PhoneNumber,
 		Email:        req.Email,
-		UserName:     req.Username,
 		Password:     req.Password,
 		RegisterDate: time.Now(),
 	}
@@ -58,10 +62,29 @@ func (s Service) CreateNewUser(req userparam.CreateNewUserRequest) (userparam.Cr
 
 	return userparam.CreateNewUserResponse{userparam.UserInfo{
 		ID:          userRes.ID,
-		UserName:    userRes.UserName,
 		PhoneNumber: userRes.PhoneNumber,
 		FirstName:   userRes.FirstName,
 		LastName:    userRes.LastName,
 		Email:       userRes.Email,
 	}}, nil
+}
+func (s Service) Login(req userparam.LoginRequest) (userparam.LoginResponse, error) {
+	user, err := s.repo.GetUserByPhoneNumber(req.PhoneNumber)
+	if err != nil {
+		return userparam.LoginResponse{}, err
+	}
+
+	tokenStr, err := s.auth.CreateToken(user)
+	if err != nil {
+		return userparam.LoginResponse{}, err
+	}
+
+	return userparam.LoginResponse{User: userparam.UserInfo{
+		ID:          user.ID,
+		PhoneNumber: user.PhoneNumber,
+		Email:       user.Email,
+		FirstName:   user.FirstName,
+		LastName:    user.LastName,
+	}, Token: tokenStr}, nil
+
 }

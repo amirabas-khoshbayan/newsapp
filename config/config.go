@@ -1,6 +1,9 @@
 package config
 
-import "newsapp/repository/mongodb"
+import (
+	"newsapp/repository/mongodb"
+	"newsapp/service/authservice"
+)
 
 type HttpServer struct {
 	Port               int  `yaml:"port"`
@@ -8,8 +11,9 @@ type HttpServer struct {
 }
 
 type Config struct {
-	HttpServer HttpServer     `yaml:"http_server"`
-	MongoDB    mongodb.Config `yaml:"mongodb"`
+	HttpServer HttpServer         `yaml:"http_server"`
+	MongoDB    mongodb.Config     `yaml:"mongodb"`
+	Auth       authservice.Config `yaml:"auth"`
 }
 
 var AppConfig Config

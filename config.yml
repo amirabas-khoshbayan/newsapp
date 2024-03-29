@@ -5,4 +5,5 @@ http_server:
 mongodb:
   host: "mongodb://localhost"
   port: 27017
-
+auth:
+  expire_at: "1m"
