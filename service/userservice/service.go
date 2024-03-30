@@ -1,6 +1,8 @@
 package userservice
 
 import (
+	"crypto/md5"
+	"encoding/hex"
 	"fmt"
 	"newsapp/entity"
 	"newsapp/param/userparam"
@@ -25,6 +27,12 @@ type Service struct {
 func New(repo Repository, authGenerator AuthGenerator) Service {
 	return Service{repo: repo, auth: authGenerator}
 }
+
+func getMD5Hash(text string) string {
+	hash := md5.Sum([]byte(text))
+	return hex.EncodeToString(hash[:])
+}
+
 func (s Service) GetUsers() ([]entity.User, error) {
 	userList, err := s.repo.GetUsers()
 	if err != nil {
@@ -51,7 +59,7 @@ func (s Service) CreateNewUser(req userparam.CreateNewUserRequest) (userparam.Cr
 		LastName:     req.LastName,
 		PhoneNumber:  req.PhoneNumber,
 		Email:        req.Email,
-		Password:     req.Password,
+		Password:     getMD5Hash(req.Password),
 		RegisterDate: time.Now(),
 	}
 
@@ -72,6 +80,10 @@ func (s Service) Login(req userparam.LoginRequest) (userparam.LoginResponse, err
 	user, err := s.repo.GetUserByPhoneNumber(req.PhoneNumber)
 	if err != nil {
 		return userparam.LoginResponse{}, err
+	}
+
+	if user.Password != getMD5Hash(req.Password) {
+		return userparam.LoginResponse{}, fmt.Errorf("username or password isn't correct")
 	}
 
 	tokenStr, err := s.auth.CreateToken(user)

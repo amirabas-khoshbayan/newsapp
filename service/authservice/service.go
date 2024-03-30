@@ -1,40 +1,41 @@
 package authservice
 
 import (
-	"github.com/golang-jwt/jwt"
+	"github.com/golang-jwt/jwt/v5"
 	"newsapp/entity"
 	"time"
 )
 
 type Config struct {
-	ExpireAt time.Duration `yaml:"expire_at"`
+	ExpireDuration time.Duration `yaml:"expire_duration"`
+	SignKey        string        `yaml:"sign_key"`
 }
 
 type Service struct {
-	config Config
+	Config Config
 }
 
 func New(cfg Config) Service {
-	return Service{config: cfg}
+	return Service{Config: cfg}
 }
 func (s Service) CreateToken(user entity.User) (string, error) {
-	token, err := s.createToken(user.ID, user.PhoneNumber, s.config.ExpireAt)
+	token, err := s.createToken(user.ID, user.PhoneNumber, s.Config.ExpireDuration)
 	if err != nil {
 		return "", err
 	}
 	return token, nil
 }
 
-func (s Service) createToken(userID, phoneNumber string, expireAt time.Duration) (string, error) {
+func (s Service) createToken(userID, phoneNumber string, expireDuration time.Duration) (string, error) {
 
-	claims := entity.JwtClaims{
-		PhoneNumber:    phoneNumber,
-		UserID:         userID,
-		StandardClaims: jwt.StandardClaims{ExpiresAt: expireAt.Milliseconds()},
+	claims := &entity.JwtClaims{
+		PhoneNumber:      phoneNumber,
+		UserID:           userID,
+		RegisteredClaims: jwt.RegisteredClaims{ExpiresAt: jwt.NewNumericDate(time.Now().Add(expireDuration))},
 	}
 
-	token := jwt.NewWithClaims(jwt.SigningMethodES256, claims)
-	signingString, err := token.SigningString()
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	signingString, err := token.SignedString([]byte(s.Config.SignKey))
 	if err != nil {
 		return "", err
 	}

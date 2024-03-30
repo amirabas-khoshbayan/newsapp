@@ -42,6 +42,12 @@ func (h Handler) createNewUser(c echo.Context) error {
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, echo.Map{"error": err.Error()})
 	}
+	//token, ok := c.Get("user").(*jwt.Token) // by default token is stored under `user` key
+	//if !ok {
+	//	return errors.New("JWT token missing or invalid")
+	//}
+	//claims, ok := token.Claims.(jwt.MapClaims) // by default claims is of type `jwt.MapClaims`
+	//fmt.Println(claims)
 
 	return c.JSON(http.StatusOK, res)
 }
