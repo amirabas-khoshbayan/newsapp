@@ -7,6 +7,7 @@ import (
 	"github.com/labstack/echo/v4/middleware"
 	"newsapp/config"
 	"newsapp/delivery/httpserver/userhandler"
+	"newsapp/pkg/customcontext"
 	"newsapp/service/authenticationservice"
 	"newsapp/service/authorizationservice"
 	"newsapp/service/userservice"
@@ -29,6 +30,13 @@ func (s Server) Serve() {
 	//Middleware
 	s.Echo.Use(middleware.RequestID())
 	s.Echo.Use(middleware.Recover())
+	s.Echo.Use(func(next echo.HandlerFunc) echo.HandlerFunc {
+		return func(c echo.Context) error {
+			apiContext := &customcontext.ApiContext{Context: c}
+
+			return next(apiContext)
+		}
+	})
 
 	//Routs
 	s.Echo.GET("/health-check", s.healthCheck)

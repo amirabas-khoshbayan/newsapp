@@ -4,6 +4,7 @@ import (
 	echojwt "github.com/labstack/echo-jwt/v4"
 	"github.com/labstack/echo/v4"
 	"net/http"
+	"newsapp/pkg/customcontext"
 	"newsapp/service/authenticationservice"
 	"newsapp/service/authorizationservice"
 )
@@ -14,7 +15,8 @@ func Auth(authSvc authenticationservice.Service) echo.MiddlewareFunc {
 		SigningKey: []byte(authSvc.Config.SignKey),
 
 		ParseTokenFunc: func(c echo.Context, auth string) (interface{}, error) {
-			headerToken := c.Request().Header.Get("authorization")
+			customContext := c.(*customcontext.ApiContext)
+			headerToken := customContext.GetHeaderToken()
 			claims, err := authSvc.ParseToken(headerToken)
 			if err != nil {
 				return nil, err
@@ -27,8 +29,8 @@ func Auth(authSvc authenticationservice.Service) echo.MiddlewareFunc {
 func CheckPermissions(authSvc authenticationservice.Service, authorizeSvc authorizationservice.Service, permissionRole string) echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) (err error) {
-			headerToken := c.Request().Header.Get("authorization")
-
+			customContext := c.(*customcontext.ApiContext)
+			headerToken := customContext.GetHeaderToken()
 			claims, err := authSvc.ParseToken(headerToken)
 
 			if err != nil {

@@ -26,7 +26,6 @@ func main() {
 	authorizeSvc := authorizationservice.New(mongoConn)
 
 	server := httpserver.New(cfg, userSvc, authSvc, authorizeSvc)
-
 	go func() {
 		server.Serve()
 	}()
