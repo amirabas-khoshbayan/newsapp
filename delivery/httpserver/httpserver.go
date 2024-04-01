@@ -7,20 +7,22 @@ import (
 	"github.com/labstack/echo/v4/middleware"
 	"newsapp/config"
 	"newsapp/delivery/httpserver/userhandler"
-	"newsapp/service/authservice"
+	"newsapp/service/authenticationservice"
+	"newsapp/service/authorizationservice"
 	"newsapp/service/userservice"
 	"newsapp/validator/customvalidator"
 )
 
 type Server struct {
-	config      config.Config
-	userHandler userhandler.Handler
-	authSvc     authservice.Service
-	Echo        *echo.Echo
+	config       config.Config
+	userHandler  userhandler.Handler
+	authorizeSvc authorizationservice.Service
+	authSvc      authenticationservice.Service
+	Echo         *echo.Echo
 }
 
-func New(config config.Config, userSvc userservice.Service, authSvc authservice.Service) Server {
-	return Server{Echo: echo.New(), config: config, userHandler: userhandler.New(userSvc, authSvc)}
+func New(config config.Config, userSvc userservice.Service, authSvc authenticationservice.Service, authorizeSvc authorizationservice.Service) Server {
+	return Server{Echo: echo.New(), config: config, userHandler: userhandler.New(userSvc, authSvc, authorizeSvc)}
 }
 
 func (s Server) Serve() {

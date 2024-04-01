@@ -11,4 +11,5 @@ type User struct {
 	UserName     string    `bson:"user_name"`
 	Password     string    `bson:"password"`
 	RegisterDate time.Time `bson:"register_date"`
+	Role         Role      `bson:"role"`
 }

@@ -14,6 +14,7 @@ type Repository interface {
 	GetUserByID(id string) (entity.User, error)
 	GetUserByPhoneNumber(phoneNumber string) (entity.User, error)
 	GetUsers() ([]entity.User, error)
+	UpdateUserByModel(user entity.User) error
 }
 type AuthGenerator interface {
 	CreateToken(user entity.User) (string, error)
@@ -61,6 +62,7 @@ func (s Service) CreateNewUser(req userparam.CreateNewUserRequest) (userparam.Cr
 		Email:        req.Email,
 		Password:     getMD5Hash(req.Password),
 		RegisterDate: time.Now(),
+		Role:         entity.Role(req.Role),
 	}
 
 	userRes, err := s.repo.InsertUser(user)
@@ -99,4 +101,19 @@ func (s Service) Login(req userparam.LoginRequest) (userparam.LoginResponse, err
 		LastName:    user.LastName,
 	}, Token: tokenStr}, nil
 
+}
+func (s Service) GiveAdminRole(userID string) error {
+	user, err := s.repo.GetUserByID(userID)
+	if err != nil {
+		return err
+	}
+
+	user.Role = entity.AdminRole
+
+	err = s.repo.UpdateUserByModel(user)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

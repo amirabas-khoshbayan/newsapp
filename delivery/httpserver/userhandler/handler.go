@@ -3,18 +3,21 @@ package userhandler
 import (
 	"github.com/labstack/echo/v4"
 	"net/http"
+	"newsapp/entity"
 	"newsapp/param/userparam"
-	"newsapp/service/authservice"
+	"newsapp/service/authenticationservice"
+	"newsapp/service/authorizationservice"
 	"newsapp/service/userservice"
 )
 
 type Handler struct {
-	userSvc userservice.Service
-	authSvc authservice.Service
+	userSvc      userservice.Service
+	authorizeSvc authorizationservice.Service
+	authSvc      authenticationservice.Service
 }
 
-func New(userSvc userservice.Service, authSvc authservice.Service) Handler {
-	return Handler{userSvc: userSvc, authSvc: authSvc}
+func New(userSvc userservice.Service, authSvc authenticationservice.Service, authorizeSvc authorizationservice.Service) Handler {
+	return Handler{userSvc: userSvc, authSvc: authSvc, authorizeSvc: authorizeSvc}
 }
 func (h Handler) getUserList(c echo.Context) error {
 
@@ -34,6 +37,8 @@ func (h Handler) createNewUser(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, echo.Map{"error": err.Error()})
 	}
 
+	req.Role = entity.UserRole
+
 	if err := c.Validate(&req); err != nil {
 		return c.JSON(http.StatusBadRequest, echo.Map{"error": err.Error()})
 	}
@@ -42,12 +47,6 @@ func (h Handler) createNewUser(c echo.Context) error {
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, echo.Map{"error": err.Error()})
 	}
-	//token, ok := c.Get("user").(*jwt.Token) // by default token is stored under `user` key
-	//if !ok {
-	//	return errors.New("JWT token missing or invalid")
-	//}
-	//claims, ok := token.Claims.(jwt.MapClaims) // by default claims is of type `jwt.MapClaims`
-	//fmt.Println(claims)
 
 	return c.JSON(http.StatusOK, res)
 }
@@ -68,4 +67,14 @@ func (h Handler) loginUser(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, res)
+}
+func (h Handler) giveAdminRole(c echo.Context) error {
+	id := c.Param("id")
+	err := h.userSvc.GiveAdminRole(id)
+	if err != nil {
+		return err
+	}
+
+	return c.JSON(http.StatusOK, echo.Map{"message": "success"})
+
 }

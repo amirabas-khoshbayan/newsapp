@@ -2,7 +2,7 @@ package config
 
 import (
 	"newsapp/repository/mongodb"
-	"newsapp/service/authservice"
+	"newsapp/service/authenticationservice"
 )
 
 type HttpServer struct {
@@ -11,9 +11,9 @@ type HttpServer struct {
 }
 
 type Config struct {
-	HttpServer HttpServer         `yaml:"http_server"`
-	MongoDB    mongodb.Config     `yaml:"mongodb"`
-	Auth       authservice.Config `yaml:"auth"`
+	HttpServer HttpServer                   `yaml:"http_server"`
+	MongoDB    mongodb.Config               `yaml:"mongodb"`
+	Auth       authenticationservice.Config `yaml:"auth"`
 }
 
 var AppConfig Config
