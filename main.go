@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"newsapp/config"
 	"newsapp/delivery/httpserver"
-	"newsapp/repository/mongodb"
-	"newsapp/repository/mongodb/mongodbuser"
+	"newsapp/repository/mysql"
+	"newsapp/repository/mysql/mysqluser"
 	"newsapp/service/authenticationservice"
 	"newsapp/service/authorizationservice"
 	"newsapp/service/userservice"
@@ -18,12 +18,14 @@ func main() {
 	cfg := config.GetConfig()
 	fmt.Println(cfg)
 
-	mongoConn := mongodb.New(cfg.MongoDB)
+	//mongoConn := mongodb.New(cfg.MongoDB)
+	mySqlConn := mysql.New(cfg.MySQL)
 
-	userMongo := mongodbuser.New(mongoConn)
+	//userMongo := mongodbuser.New(mongoConn)
+	userMySql := mysqluser.New(mySqlConn)
 	authSvc := authenticationservice.New(cfg.Auth)
-	userSvc := userservice.New(userMongo, authSvc)
-	authorizeSvc := authorizationservice.New(mongoConn)
+	userSvc := userservice.New(userMySql, authSvc)
+	authorizeSvc := authorizationservice.New(mySqlConn)
 
 	server := httpserver.New(cfg, userSvc, authSvc, authorizeSvc)
 	go func() {
