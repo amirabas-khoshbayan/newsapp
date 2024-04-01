@@ -1,0 +1,21 @@
+version: '3.7'
+
+services:
+  newsapp-database:
+    image: mysql:8.0
+    ports:
+      - "3301:3303"
+    container_name: newsapp-database
+    volumes:
+      - dbdata:/var/lib/mysql
+    restart: always
+    command: ['mysqld', '--character-set-server=utf8mb4', '--collation-server=utf8mb4_unicode_ci']
+    environment:
+      MYSQL_ROOT_PASSWORD: newsappRoo7t0lk2o20
+      MYSQL_DATABASE: newsapp_db
+      MYSQL_USER: newsapp
+      MYSQL_PASSWORD: newsappt0lk2o20
+
+
+volumes:
+  dbdata:
