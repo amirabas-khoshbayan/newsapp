@@ -9,11 +9,11 @@ import (
 )
 
 type Config struct {
-	Host     string `yml:"host"`
+	Host     string `yaml:"host"`
 	Port     int    `yaml:"port"`
-	Username string `yml:"username"`
-	Password string `yml:"password"`
-	DBName   string `yml:"dbname"`
+	Username string `yaml:"username"`
+	Password string `yaml:"password"`
+	DBName   string `yaml:"db_name"`
 }
 
 type MySQLDB struct {
@@ -27,7 +27,8 @@ func (m *MySQLDB) Conn() *sql.DB {
 
 func New(cfg Config) *MySQLDB {
 
-	uri := fmt.Sprintf("%s:%s@(%s:%d)/%s?parseTime=true", cfg.Username, cfg.Password, cfg.Host, cfg.Port, cfg.DBName)
+	uri := fmt.Sprintf("%s:%s@(%s:%d)/%s?parseTime=true",
+		cfg.Username, cfg.Password, cfg.Host, cfg.Port, cfg.DBName)
 
 	db, err := sql.Open("mysql", uri)
 	if err != nil {
@@ -38,6 +39,11 @@ func New(cfg Config) *MySQLDB {
 	db.SetConnMaxLifetime(time.Minute * 3)
 	db.SetMaxOpenConns(10)
 	db.SetMaxIdleConns(10)
+
+	err = db.Ping()
+	if err != nil {
+		panic(err)
+	}
 
 	return &MySQLDB{config: cfg, db: db}
 }

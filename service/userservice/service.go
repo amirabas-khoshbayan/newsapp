@@ -1,6 +1,7 @@
 package userservice
 
 import (
+	"context"
 	"crypto/md5"
 	"encoding/hex"
 	"fmt"
@@ -11,10 +12,10 @@ import (
 
 type Repository interface {
 	InsertUser(user entity.User) (entity.User, error)
-	GetUserByID(id string) (entity.User, error)
-	GetUserByPhoneNumber(phoneNumber string) (entity.User, error)
-	GetUsers() ([]entity.User, error)
-	UpdateUserByModel(user entity.User) error
+	GetUserByID(ctx context.Context, userID string) (entity.User, error)
+	GetUserByPhoneNumber(ctx context.Context, phoneNumber string) (entity.User, error)
+	GetUsers(ctx context.Context) ([]entity.User, error)
+	UpdateUserByModel(ctx context.Context, user entity.User) error
 }
 type AuthGenerator interface {
 	CreateToken(user entity.User) (string, error)
@@ -34,16 +35,15 @@ func getMD5Hash(text string) string {
 	return hex.EncodeToString(hash[:])
 }
 
-func (s Service) GetUsers() ([]entity.User, error) {
-	userList, err := s.repo.GetUsers()
-	if err != nil {
-		return nil, err
-	}
+func (s Service) GetUsers(ctx context.Context) ([]entity.User, error) {
+	//userList, err := s.repo.GetUsers(ctx)
+	//if err != nil {
+	//	return nil, err
+	//}
 	insertUser, err := s.repo.InsertUser(entity.User{
-		ID:          "",
 		FirstName:   "abbas",
 		LastName:    "Khoshbayan",
-		PhoneNumber: "123456",
+		PhoneNumber: getMD5Hash("123456789"),
 	})
 	if err != nil {
 		return nil, err
@@ -51,7 +51,7 @@ func (s Service) GetUsers() ([]entity.User, error) {
 
 	fmt.Println(insertUser)
 
-	return userList, nil
+	return nil, nil
 }
 func (s Service) CreateNewUser(req userparam.CreateNewUserRequest) (userparam.CreateNewUserResponse, error) {
 	//TODO - hash the password
@@ -78,8 +78,8 @@ func (s Service) CreateNewUser(req userparam.CreateNewUserRequest) (userparam.Cr
 		Email:       userRes.Email,
 	}}, nil
 }
-func (s Service) Login(req userparam.LoginRequest) (userparam.LoginResponse, error) {
-	user, err := s.repo.GetUserByPhoneNumber(req.PhoneNumber)
+func (s Service) Login(ctx context.Context, req userparam.LoginRequest) (userparam.LoginResponse, error) {
+	user, err := s.repo.GetUserByPhoneNumber(ctx, req.PhoneNumber)
 	if err != nil {
 		return userparam.LoginResponse{}, err
 	}
@@ -102,15 +102,16 @@ func (s Service) Login(req userparam.LoginRequest) (userparam.LoginResponse, err
 	}, Token: tokenStr}, nil
 
 }
-func (s Service) GiveAdminRole(userID string) error {
-	user, err := s.repo.GetUserByID(userID)
+func (s Service) GiveAdminRole(ctx context.Context, userID string) error {
+
+	user, err := s.repo.GetUserByID(ctx, userID)
 	if err != nil {
 		return err
 	}
 
 	user.Role = entity.AdminRole
 
-	err = s.repo.UpdateUserByModel(user)
+	err = s.repo.UpdateUserByModel(ctx, user)
 	if err != nil {
 		return err
 	}

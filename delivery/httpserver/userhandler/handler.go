@@ -21,7 +21,7 @@ func New(userSvc userservice.Service, authSvc authenticationservice.Service, aut
 }
 func (h Handler) getUserList(c echo.Context) error {
 
-	userList, err := h.userSvc.GetUsers()
+	userList, err := h.userSvc.GetUsers(c.Request().Context())
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, echo.Map{"error": err.Error()})
 	}
@@ -61,7 +61,7 @@ func (h Handler) loginUser(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, echo.Map{"error": err.Error()})
 	}
 
-	res, err := h.userSvc.Login(req)
+	res, err := h.userSvc.Login(c.Request().Context(), req)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, echo.Map{"error": err.Error()})
 	}
@@ -70,7 +70,7 @@ func (h Handler) loginUser(c echo.Context) error {
 }
 func (h Handler) giveAdminRole(c echo.Context) error {
 	id := c.Param("id")
-	err := h.userSvc.GiveAdminRole(id)
+	err := h.userSvc.GiveAdminRole(c.Request().Context(), id)
 	if err != nil {
 		return err
 	}
