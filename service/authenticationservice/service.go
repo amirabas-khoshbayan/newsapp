@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/golang-jwt/jwt/v5"
 	"newsapp/entity"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -21,7 +22,7 @@ func New(cfg Config) Service {
 	return Service{Config: cfg}
 }
 func (s Service) CreateToken(user entity.User) (string, error) {
-	token, err := s.createToken(user.ID, user.PhoneNumber, user.Role, s.Config.ExpireDuration)
+	token, err := s.createToken(strconv.Itoa(int(user.ID)), user.PhoneNumber, user.Role, s.Config.ExpireDuration)
 	if err != nil {
 		return "", err
 	}

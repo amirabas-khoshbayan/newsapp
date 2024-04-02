@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"newsapp/entity"
 	"newsapp/param/userparam"
+	"strconv"
 	"time"
 )
 
@@ -36,22 +37,15 @@ func getMD5Hash(text string) string {
 }
 
 func (s Service) GetUsers(ctx context.Context) ([]entity.User, error) {
-	//userList, err := s.repo.GetUsers(ctx)
-	//if err != nil {
-	//	return nil, err
-	//}
-	insertUser, err := s.repo.InsertUser(entity.User{
-		FirstName:   "abbas",
-		LastName:    "Khoshbayan",
-		PhoneNumber: getMD5Hash("123456789"),
-	})
+	userList, err := s.repo.GetUsers(ctx)
+	if err != nil {
+		return nil, err
+	}
 	if err != nil {
 		return nil, err
 	}
 
-	fmt.Println(insertUser)
-
-	return nil, nil
+	return userList, nil
 }
 func (s Service) CreateNewUser(req userparam.CreateNewUserRequest) (userparam.CreateNewUserResponse, error) {
 	//TODO - hash the password
@@ -71,7 +65,7 @@ func (s Service) CreateNewUser(req userparam.CreateNewUserRequest) (userparam.Cr
 	}
 
 	return userparam.CreateNewUserResponse{userparam.UserInfo{
-		ID:          userRes.ID,
+		ID:          strconv.Itoa(int(userRes.ID)),
 		PhoneNumber: userRes.PhoneNumber,
 		FirstName:   userRes.FirstName,
 		LastName:    userRes.LastName,
@@ -94,7 +88,7 @@ func (s Service) Login(ctx context.Context, req userparam.LoginRequest) (userpar
 	}
 
 	return userparam.LoginResponse{User: userparam.UserInfo{
-		ID:          user.ID,
+		ID:          strconv.Itoa(int(user.ID)),
 		PhoneNumber: user.PhoneNumber,
 		Email:       user.Email,
 		FirstName:   user.FirstName,

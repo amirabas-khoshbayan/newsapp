@@ -3,7 +3,6 @@ package mysqluser
 import (
 	"context"
 	"newsapp/entity"
-	"strconv"
 )
 
 func (d *DB) GetUserByID(ctx context.Context, userID string) (entity.User, error) {
@@ -28,7 +27,7 @@ func (d *DB) InsertUser(user entity.User) (entity.User, error) {
 	}
 	insertId, _ := result.LastInsertId()
 
-	user.ID = strconv.FormatInt(insertId, 10)
+	user.ID = uint(insertId)
 
 	return user, nil
 }

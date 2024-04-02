@@ -5,6 +5,7 @@ import (
 	"newsapp/config"
 	"newsapp/delivery/httpserver"
 	"newsapp/repository/mysql"
+	"newsapp/repository/mysql/migrator"
 	"newsapp/repository/mysql/mysqluser"
 	"newsapp/service/authenticationservice"
 	"newsapp/service/authorizationservice"
@@ -17,6 +18,9 @@ func main() {
 
 	cfg := config.GetConfig()
 	fmt.Println(cfg)
+
+	mgr := migrator.New(cfg.MySQL)
+	mgr.Up()
 
 	//mongoConn := mongodb.New(cfg.MongoDB)
 	mySqlConn := mysql.New(cfg.MySQL)
