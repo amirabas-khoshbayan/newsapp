@@ -5,12 +5,14 @@ http_server:
 mongodb:
   host: "mongodb://localhost"
   port: 27017
+
 auth:
   expire_duration: "1440m"
   sign_key: "secret"
+
 mysql:
-  db_name: newsapp_db
-  host: localhost
-  port: 3301
-  username: newsapp
-  password: newsappt0lk2o20
+  db_name: "newsapp_db"
+  host: "localhost"
+  port: 3308
+  username: "newsapp"
+  password: "newsappt0lk2o20"
