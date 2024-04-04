@@ -41,9 +41,6 @@ func (s Service) GetUsers(ctx context.Context) ([]entity.User, error) {
 	if err != nil {
 		return nil, err
 	}
-	if err != nil {
-		return nil, err
-	}
 
 	return userList, nil
 }

@@ -6,10 +6,7 @@ import (
 )
 
 func (d *DB) GetUserByID(ctx context.Context, userID string) (entity.User, error) {
-	rows, err := d.userConn.Conn().QueryContext(ctx, ` SELECT * FROM user WHERE id = ?`, userID)
-	if err != nil {
-		return entity.User{}, err
-	}
+	rows := d.userConn.Conn().QueryRowContext(ctx, ` SELECT * FROM user WHERE id = ?`, userID)
 
 	user, err := scanUser(rows)
 	if err != nil {
@@ -33,10 +30,7 @@ func (d *DB) InsertUser(user entity.User) (entity.User, error) {
 }
 
 func (d *DB) GetUserByPhoneNumber(ctx context.Context, phoneNumber string) (entity.User, error) {
-	rows, err := d.userConn.Conn().QueryContext(ctx, ` SELECT * FROM user WHERE phone_number = ?`, phoneNumber)
-	if err != nil {
-		return entity.User{}, err
-	}
+	rows := d.userConn.Conn().QueryRowContext(ctx, ` SELECT * FROM user WHERE phone_number = ?`, phoneNumber)
 
 	user, err := scanUser(rows)
 	if err != nil {
@@ -47,11 +41,31 @@ func (d *DB) GetUserByPhoneNumber(ctx context.Context, phoneNumber string) (enti
 }
 
 func (d *DB) GetUsers(ctx context.Context) ([]entity.User, error) {
-	//TODO implement me
-	panic("implement me")
+	users := make([]entity.User, 0)
+	rows, err := d.userConn.Conn().QueryContext(ctx, ` SELECT * FROM user`)
+	if err != nil {
+		return nil, err
+	}
+
+	for rows.Next() {
+		user, err := scanUser(rows)
+		if err != nil {
+			return nil, err
+		}
+		users = append(users, user)
+	}
+
+	return users, nil
 }
 
 func (d *DB) UpdateUserByModel(ctx context.Context, user entity.User) error {
-	//TODO implement me
-	panic("implement me")
+	row := d.userConn.Conn().QueryRowContext(ctx, `UPDATE user SET first_name = ?, last_name = ?, phone_number = ?,role = ?, email = ?  WHERE id = ? `,
+		user.FirstName, user.LastName, user.PhoneNumber, user.Role, user.Email, user.ID)
+
+	if row.Err() != nil {
+		return row.Err()
+	}
+
+	return nil
+
 }

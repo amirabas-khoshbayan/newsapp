@@ -18,10 +18,13 @@ func scanUser(scanner mysql.Scanner) (entity.User, error) {
 	var registerDate time.Time
 	var user entity.User
 
-	err := scanner.Scan(&user.ID, &user.PhoneNumber, &user.Password, &user.Email, &user.LastName, &user.FirstName, user.Role, &registerDate)
+	err := scanner.Scan(&user.ID, &user.FirstName, &user.LastName, &user.PhoneNumber, &user.Email, &registerDate, &user.Password, &user.Role)
 	if err != nil {
 		return entity.User{}, err
 	}
+
+	user.RegisterDate = registerDate
+
 	return user, nil
 
 }
