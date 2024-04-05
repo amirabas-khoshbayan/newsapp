@@ -12,5 +12,8 @@ func (h Handler) SetUserRoutes(e *echo.Echo) {
 	userGroup.POST("/login", h.loginUser)
 	userGroup.GET("/get/list", h.getUserList).Name = "userList"
 	userGroup.POST("/create", h.createNewUser).Name = "createNewUser"
-	userGroup.PUT("/give-admin-role/:id", h.giveAdminRole, middleware.Auth(h.authSvc), middleware.CheckPermissions(h.authSvc, h.authorizeSvc, entity.OwnerRole)).Name = "giveAdminRole"
+	userGroup.PUT("/give-admin-role/:id", h.giveAdminRole, middleware.Auth(h.authSvc),
+		middleware.CheckPermissions(h.authSvc, h.authorizeSvc, entity.OwnerRole)).Name = "giveAdminRole"
+	userGroup.DELETE("/delete/:id", h.deleteUser, middleware.Auth(h.authSvc),
+		middleware.CheckPermissions(h.authSvc, h.authorizeSvc, entity.OwnerRole))
 }

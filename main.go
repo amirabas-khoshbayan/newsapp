@@ -12,9 +12,12 @@ import (
 	"newsapp/service/userservice"
 	"os"
 	"os/signal"
+	"time"
 )
 
 func main() {
+	appLabel := fmt.Sprintf("time = %s , Branch =  %s, AppVersion  %s", time.Now().String(), "master", config.AppVersion)
+	fmt.Println(appLabel)
 
 	cfg := config.GetConfig()
 	fmt.Println(cfg)

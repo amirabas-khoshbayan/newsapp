@@ -1,7 +1,6 @@
 package authenticationservice
 
 import (
-	"fmt"
 	"github.com/golang-jwt/jwt/v5"
 	"newsapp/entity"
 	"strconv"
@@ -10,8 +9,8 @@ import (
 )
 
 type Config struct {
-	ExpireDuration time.Duration `yaml:"expire_duration"`
 	SignKey        string        `yaml:"sign_key"`
+	ExpireDuration time.Duration `yaml:"expire_duration"`
 }
 
 type Service struct {
@@ -57,7 +56,6 @@ func (s Service) ParseToken(headerToken string) (*JwtClaims, error) {
 	}
 
 	if claims, ok := token.Claims.(*JwtClaims); ok {
-		fmt.Printf("%v %v", claims.UserID, claims.RegisteredClaims.ExpiresAt)
 		return claims, nil
 	} else {
 		return nil, err

@@ -6,9 +6,9 @@ import (
 )
 
 func (d *DB) GetUserByID(ctx context.Context, userID string) (entity.User, error) {
-	rows := d.userConn.Conn().QueryRowContext(ctx, ` SELECT * FROM user WHERE id = ?`, userID)
+	row := d.userConn.Conn().QueryRowContext(ctx, ` SELECT * FROM user WHERE id = ?`, userID)
 
-	user, err := scanUser(rows)
+	user, err := scanUser(row)
 	if err != nil {
 		return entity.User{}, err
 	}
@@ -30,9 +30,9 @@ func (d *DB) InsertUser(user entity.User) (entity.User, error) {
 }
 
 func (d *DB) GetUserByPhoneNumber(ctx context.Context, phoneNumber string) (entity.User, error) {
-	rows := d.userConn.Conn().QueryRowContext(ctx, ` SELECT * FROM user WHERE phone_number = ?`, phoneNumber)
+	row := d.userConn.Conn().QueryRowContext(ctx, ` SELECT * FROM user WHERE phone_number = ?`, phoneNumber)
 
-	user, err := scanUser(rows)
+	user, err := scanUser(row)
 	if err != nil {
 		return entity.User{}, err
 	}
@@ -62,6 +62,16 @@ func (d *DB) UpdateUserByModel(ctx context.Context, user entity.User) error {
 	row := d.userConn.Conn().QueryRowContext(ctx, `UPDATE user SET first_name = ?, last_name = ?, phone_number = ?,role = ?, email = ?  WHERE id = ? `,
 		user.FirstName, user.LastName, user.PhoneNumber, user.Role, user.Email, user.ID)
 
+	if row.Err() != nil {
+		return row.Err()
+	}
+
+	return nil
+
+}
+
+func (d *DB) DeleteUser(ctx context.Context, id string) error {
+	row := d.userConn.Conn().QueryRowContext(ctx, ` DELETE FROM user WHERE id = ?`, id)
 	if row.Err() != nil {
 		return row.Err()
 	}

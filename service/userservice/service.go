@@ -17,7 +17,9 @@ type Repository interface {
 	GetUserByPhoneNumber(ctx context.Context, phoneNumber string) (entity.User, error)
 	GetUsers(ctx context.Context) ([]entity.User, error)
 	UpdateUserByModel(ctx context.Context, user entity.User) error
+	DeleteUser(ctx context.Context, id string) error
 }
+
 type AuthGenerator interface {
 	CreateToken(user entity.User) (string, error)
 }
@@ -108,4 +110,9 @@ func (s Service) GiveAdminRole(ctx context.Context, userID string) error {
 	}
 
 	return nil
+}
+func (s Service) DeleteUser(ctx context.Context, id string) error {
+	err := s.repo.DeleteUser(ctx, id)
+
+	return err
 }

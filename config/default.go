@@ -1,5 +1,6 @@
 package config
 
 const (
-	AppName = "newsapp"
+	AppName    = "newsapp"
+	AppVersion = "1.0.0"
 )

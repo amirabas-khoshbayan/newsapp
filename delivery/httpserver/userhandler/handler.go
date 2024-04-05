@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"newsapp/entity"
 	"newsapp/param/userparam"
+	"newsapp/pkg/httpresponse"
 	"newsapp/service/authenticationservice"
 	"newsapp/service/authorizationservice"
 	"newsapp/service/userservice"
@@ -77,4 +78,16 @@ func (h Handler) giveAdminRole(c echo.Context) error {
 
 	return c.JSON(http.StatusOK, echo.Map{"message": "success"})
 
+}
+func (h Handler) deleteUser(c echo.Context) error {
+	id := c.Param("id")
+	err := h.userSvc.DeleteUser(c.Request().Context(), id)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, httpresponse.New(httpresponse.HttpResponse{
+			Code:    http.StatusBadRequest,
+			Message: err.Error(),
+		}))
+	}
+
+	return c.JSON(http.StatusOK, echo.Map{"message": "success"})
 }
