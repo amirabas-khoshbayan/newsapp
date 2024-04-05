@@ -2,8 +2,10 @@ package userhandler
 
 import (
 	"github.com/labstack/echo/v4"
+	"go.uber.org/zap"
 	"net/http"
 	"newsapp/entity"
+	"newsapp/logger"
 	"newsapp/param/userparam"
 	"newsapp/pkg/httpresponse"
 	"newsapp/service/authenticationservice"
@@ -23,7 +25,9 @@ func New(userSvc userservice.Service, authSvc authenticationservice.Service, aut
 func (h Handler) getUserList(c echo.Context) error {
 
 	userList, err := h.userSvc.GetUsers(c.Request().Context())
+
 	if err != nil {
+		logger.ZapLogger.Named("userHandler").Error("getUserList", zap.Any("userSvc.GetUsers error", err.Error()))
 		return c.JSON(http.StatusBadRequest, echo.Map{"error": err.Error()})
 	}
 

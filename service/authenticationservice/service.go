@@ -8,6 +8,8 @@ import (
 	"time"
 )
 
+//TODO - implement Access Token and Refresh Token
+
 type Config struct {
 	SignKey        string        `yaml:"sign_key"`
 	ExpireDuration time.Duration `yaml:"expire_duration"`
