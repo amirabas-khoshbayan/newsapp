@@ -5,7 +5,7 @@ import (
 	"newsapp/entity"
 )
 
-func (d *DB) GetUserByID(ctx context.Context, userID string) (entity.User, error) {
+func (d *DB) GetUserByID(ctx context.Context, userID int) (entity.User, error) {
 	row := d.userConn.Conn().QueryRowContext(ctx, ` SELECT * FROM user WHERE id = ?`, userID)
 
 	user, err := scanUser(row)
@@ -58,15 +58,20 @@ func (d *DB) GetUsers(ctx context.Context) ([]entity.User, error) {
 	return users, nil
 }
 
-func (d *DB) UpdateUserByModel(ctx context.Context, user entity.User) error {
+func (d *DB) UpdateUserByModel(ctx context.Context, user entity.User) (entity.User, error) {
 	row := d.userConn.Conn().QueryRowContext(ctx, `UPDATE user SET first_name = ?, last_name = ?, phone_number = ?,role = ?, email = ?  WHERE id = ? `,
 		user.FirstName, user.LastName, user.PhoneNumber, user.Role, user.Email, user.ID)
 
 	if row.Err() != nil {
-		return row.Err()
+		return entity.User{}, row.Err()
 	}
 
-	return nil
+	user, err := scanUser(row)
+	if err != nil {
+		return entity.User{}, err
+	}
+
+	return user, nil
 
 }
 

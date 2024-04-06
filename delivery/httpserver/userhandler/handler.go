@@ -1,16 +1,23 @@
 package userhandler
 
 import (
+	"fmt"
 	"github.com/labstack/echo/v4"
 	"go.uber.org/zap"
+	"io"
+	"math/rand"
 	"net/http"
 	"newsapp/entity"
 	"newsapp/logger"
 	"newsapp/param/userparam"
+	"newsapp/pkg/customcontext"
 	"newsapp/pkg/httpresponse"
 	"newsapp/service/authenticationservice"
 	"newsapp/service/authorizationservice"
 	"newsapp/service/userservice"
+	"os"
+	"path/filepath"
+	"strconv"
 )
 
 type Handler struct {
@@ -94,4 +101,96 @@ func (h Handler) deleteUser(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, echo.Map{"message": "success"})
+}
+func (h Handler) uploadAvatar(c echo.Context) error {
+	customContext := c.(*customcontext.ApiContext)
+
+	file, err := customContext.FormFile("file")
+	if err != nil {
+		logger.ZapLogger.Named("userHandler").Error("uploadAvatar", zap.Any("customContext.FormFile(\"file\") error", err.Error()))
+		return c.JSON(http.StatusBadRequest, httpresponse.New(httpresponse.HttpResponse{
+			Code:    http.StatusBadRequest,
+			Message: err.Error(),
+		}))
+	}
+
+	src, err := file.Open()
+	if err != nil {
+		logger.ZapLogger.Named("userHandler").Error("uploadAvatar", zap.Any("file.Open() error", err.Error()))
+		return c.JSON(http.StatusBadRequest, httpresponse.New(httpresponse.HttpResponse{
+			Code:    http.StatusBadRequest,
+			Message: err.Error(),
+		}))
+	}
+
+	wd, err := os.Getwd()
+	// TODO - add path to config
+	if _, err := os.Stat(wd + "/wwwroot/images/useravatar"); os.IsNotExist(err) {
+		_ = os.MkdirAll(wd+"/wwwroot/images/useravatar", os.ModePerm)
+	}
+	randomInt := rand.Int()
+	fileID := fmt.Sprintf("%s", randomInt)
+	imageServerPath := filepath.Join(wd, "wwwroot", "images", "useravatar", file.Filename+fileID)
+
+	destination, err := os.Create(imageServerPath)
+	if err != nil {
+		logger.ZapLogger.Named("userHandler").Error("uploadAvatar", zap.Any("os.Create(file.Filename) error", err.Error()))
+		return c.JSON(http.StatusBadRequest, httpresponse.New(httpresponse.HttpResponse{
+			Code:    http.StatusBadRequest,
+			Message: err.Error(),
+		}))
+	}
+
+	defer destination.Close()
+
+	_, ioErr := io.Copy(destination, src)
+	if ioErr != nil {
+		logger.ZapLogger.Named("userHandler").Error("uploadAvatar", zap.Any("io.Copy(destination, src) error", ioErr.Error()))
+		return c.JSON(http.StatusBadRequest, httpresponse.New(httpresponse.HttpResponse{
+			Code:    http.StatusBadRequest,
+			Message: ioErr.Error(),
+		}))
+	}
+
+	return c.JSON(http.StatusOK, httpresponse.New(httpresponse.HttpResponse{
+		Code:     http.StatusOK,
+		Message:  "success",
+		MetaData: map[string]interface{}{"avatar_file_name": file.Filename + fileID},
+	}))
+}
+func (h Handler) editUser(c echo.Context) error {
+	id := c.Param("id")
+
+	var req userparam.EditUserRequest
+	parseInt, _ := strconv.ParseInt(id, 10, 64)
+	req.ID = int(parseInt)
+
+	var res userparam.EditUserResponse
+	if err := c.Bind(&req); err != nil {
+		return c.JSON(http.StatusBadRequest, httpresponse.New(httpresponse.HttpResponse{
+			Code:    http.StatusBadRequest,
+			Message: err.Error(),
+		}))
+	}
+
+	if err := c.Validate(&req); err != nil {
+		return c.JSON(http.StatusBadRequest, httpresponse.New(httpresponse.HttpResponse{
+			Code:    http.StatusBadRequest,
+			Message: err.Error(),
+		}))
+	}
+
+	res, err := h.userSvc.EditUser(c.Request().Context(), req)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, httpresponse.New(httpresponse.HttpResponse{
+			Code:    http.StatusBadRequest,
+			Message: err.Error(),
+		}))
+	}
+
+	return c.JSON(http.StatusOK, httpresponse.New(httpresponse.HttpResponse{
+		Code:    http.StatusOK,
+		Message: "success",
+		Data:    res,
+	}))
 }

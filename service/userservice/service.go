@@ -16,7 +16,7 @@ type Repository interface {
 	GetUserByID(ctx context.Context, userID string) (entity.User, error)
 	GetUserByPhoneNumber(ctx context.Context, phoneNumber string) (entity.User, error)
 	GetUsers(ctx context.Context) ([]entity.User, error)
-	UpdateUserByModel(ctx context.Context, user entity.User) error
+	UpdateUserByModel(ctx context.Context, user entity.User) (entity.User, error)
 	DeleteUser(ctx context.Context, id string) error
 }
 
@@ -47,7 +47,7 @@ func (s Service) GetUsers(ctx context.Context) ([]entity.User, error) {
 	return userList, nil
 }
 func (s Service) CreateNewUser(req userparam.CreateNewUserRequest) (userparam.CreateNewUserResponse, error) {
-	//TODO - hash the password
+
 	user := entity.User{
 		FirstName:    req.FirstName,
 		LastName:     req.LastName,
@@ -104,12 +104,47 @@ func (s Service) GiveAdminRole(ctx context.Context, userID string) error {
 
 	user.Role = entity.AdminRole
 
-	err = s.repo.UpdateUserByModel(ctx, user)
+	_, err = s.repo.UpdateUserByModel(ctx, user)
 	if err != nil {
 		return err
 	}
 
 	return nil
+}
+func (s Service) EditUser(ctx context.Context, req userparam.EditUserRequest) (userparam.EditUserResponse, error) {
+	userRes, err := s.repo.GetUserByID(ctx, strconv.Itoa(int(req.ID)))
+	if err != nil {
+		return userparam.EditUserResponse{}, err
+	}
+	if req.FirstName != "" {
+		userRes.FirstName = req.FirstName
+	}
+	if req.LastName != "" {
+		userRes.LastName = req.LastName
+	}
+	if userRes.Email != "" {
+		userRes.Email = req.Email
+	}
+	if req.Password != "" {
+		userRes.Password = req.Password
+	}
+	if req.AvatarFileName != "" {
+		userRes.AvatarFileName = req.AvatarFileName
+	}
+
+	user, err := s.repo.UpdateUserByModel(ctx, userRes)
+	if err != nil {
+		return userparam.EditUserResponse{}, err
+	}
+
+	return userparam.EditUserResponse{User: userparam.UserInfo{
+		ID:             strconv.Itoa(int(user.ID)),
+		PhoneNumber:    user.PhoneNumber,
+		FirstName:      user.FirstName,
+		LastName:       user.LastName,
+		Email:          user.Email,
+		AvatarFileName: user.AvatarFileName,
+	}}, nil
 }
 func (s Service) DeleteUser(ctx context.Context, id string) error {
 	err := s.repo.DeleteUser(ctx, id)
