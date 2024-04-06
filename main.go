@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"newsapp/config"
 	"newsapp/delivery/httpserver"
+	"newsapp/logger"
 	"newsapp/repository/mysql"
 	"newsapp/repository/mysql/migrator"
 	"newsapp/repository/mysql/mysqluser"
@@ -24,6 +25,9 @@ func main() {
 
 	mgr := migrator.New(cfg.MySQL)
 	mgr.Up()
+
+	// init zap logger
+	logger.Init(cfg.ZapLogger)
 
 	//mongoConn := mongodb.New(cfg.MongoDB)
 	mySqlConn := mysql.New(cfg.MySQL)

@@ -16,3 +16,9 @@ mysql:
   port: 3308
   username: "newsapp"
   password: "newsappt0lk2o20"
+
+zap_logger:
+  file_path: "./logs/log.json"
+  use_local_time: false
+  file_max_size_in_mb: 10
+  file_max_age_in_days: 30

@@ -1,6 +1,7 @@
 package config
 
 import (
+	"newsapp/logger"
 	"newsapp/repository/mongodb"
 	"newsapp/repository/mysql"
 	"newsapp/service/authenticationservice"
@@ -16,6 +17,7 @@ type Config struct {
 	MongoDB    mongodb.Config               `yaml:"mongodb"`
 	MySQL      mysql.Config                 `yaml:"mysql"`
 	Auth       authenticationservice.Config `yaml:"auth"`
+	ZapLogger  logger.Config                `yaml:"zap_logger"`
 }
 
 var AppConfig Config
