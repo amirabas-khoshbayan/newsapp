@@ -7,9 +7,11 @@ import (
 	"newsapp/logger"
 	"newsapp/repository/mysql"
 	"newsapp/repository/mysql/migrator"
+	"newsapp/repository/mysql/mysqlnews"
 	"newsapp/repository/mysql/mysqluser"
 	"newsapp/service/authenticationservice"
 	"newsapp/service/authorizationservice"
+	"newsapp/service/newsservice"
 	"newsapp/service/userservice"
 	"os"
 	"os/signal"
@@ -34,11 +36,13 @@ func main() {
 
 	//userMongo := mongodbuser.New(mongoConn)
 	userMySql := mysqluser.New(mySqlConn)
+	newsMySql := mysqlnews.New(mySqlConn)
 	authSvc := authenticationservice.New(cfg.Auth)
 	userSvc := userservice.New(userMySql, authSvc)
+	newsSvc := newsservice.New(newsMySql)
 	authorizeSvc := authorizationservice.New(mySqlConn)
 
-	server := httpserver.New(cfg, userSvc, authSvc, authorizeSvc)
+	server := httpserver.New(cfg, userSvc, newsSvc, authSvc, authorizeSvc)
 	go func() {
 		server.Serve()
 	}()

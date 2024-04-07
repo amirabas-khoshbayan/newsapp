@@ -12,6 +12,7 @@ import (
 	"newsapp/pkg/customcontext"
 	"newsapp/service/authenticationservice"
 	"newsapp/service/authorizationservice"
+	"newsapp/service/newsservice"
 	"newsapp/service/userservice"
 	"newsapp/validator/customvalidator"
 )
@@ -24,7 +25,7 @@ type Server struct {
 	Echo         *echo.Echo
 }
 
-func New(config config.Config, userSvc userservice.Service, authSvc authenticationservice.Service, authorizeSvc authorizationservice.Service) Server {
+func New(config config.Config, userSvc userservice.Service, newsSvc newsservice.Service, authSvc authenticationservice.Service, authorizeSvc authorizationservice.Service) Server {
 	return Server{Echo: echo.New(), config: config, userHandler: userhandler.New(userSvc, authSvc, authorizeSvc)}
 }
 

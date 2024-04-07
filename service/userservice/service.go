@@ -13,7 +13,7 @@ import (
 
 type Repository interface {
 	InsertUser(user entity.User) (entity.User, error)
-	GetUserByID(ctx context.Context, userID string) (entity.User, error)
+	GetUserByID(ctx context.Context, userID int) (entity.User, error)
 	GetUserByPhoneNumber(ctx context.Context, phoneNumber string) (entity.User, error)
 	GetUsers(ctx context.Context) ([]entity.User, error)
 	UpdateUserByModel(ctx context.Context, user entity.User) (entity.User, error)
@@ -95,7 +95,7 @@ func (s Service) Login(ctx context.Context, req userparam.LoginRequest) (userpar
 	}, Token: tokenStr}, nil
 
 }
-func (s Service) GiveAdminRole(ctx context.Context, userID string) error {
+func (s Service) GiveAdminRole(ctx context.Context, userID int) error {
 
 	user, err := s.repo.GetUserByID(ctx, userID)
 	if err != nil {
@@ -112,7 +112,7 @@ func (s Service) GiveAdminRole(ctx context.Context, userID string) error {
 	return nil
 }
 func (s Service) EditUser(ctx context.Context, req userparam.EditUserRequest) (userparam.EditUserResponse, error) {
-	userRes, err := s.repo.GetUserByID(ctx, strconv.Itoa(int(req.ID)))
+	userRes, err := s.repo.GetUserByID(ctx, req.ID)
 	if err != nil {
 		return userparam.EditUserResponse{}, err
 	}
