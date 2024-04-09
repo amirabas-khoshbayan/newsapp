@@ -82,7 +82,9 @@ func (h Handler) loginUser(c echo.Context) error {
 }
 func (h Handler) giveAdminRole(c echo.Context) error {
 	id := c.Param("id")
-	err := h.userSvc.GiveAdminRole(c.Request().Context(), id)
+	idInt, _ := strconv.ParseInt(id, 10, 64)
+
+	err := h.userSvc.GiveAdminRole(c.Request().Context(), int(idInt))
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, echo.Map{"error": err.Error()})
 	}

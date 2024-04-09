@@ -12,4 +12,4 @@ type News struct {
 	CreatorUserID    uint      `bson:"creator_user_id,omitempty" json:"creator_user_id"`
 	VisitCount       int       `bson:"visit_count,omitempty" json:"visit_count"`
 	LikeCount        int       `bson:"like_count,omitempty" json:"like_count"`
-}
+	Categories       []Category  `bson:"categories" json:"categories"`
