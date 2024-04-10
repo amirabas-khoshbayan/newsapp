@@ -10,4 +10,5 @@ type CreateNewsRequest struct {
 	Description      string            `json:"description"`
 	ImageFileName    string            `json:"image_file_name"`
 	Categories       []entity.Category `json:"categories"`
+	CreatorUserID    uint              `json:"creator_user_id"`
 }

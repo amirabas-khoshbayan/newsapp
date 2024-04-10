@@ -33,6 +33,7 @@ func (s Service) CreateNewNews(req newsparam.CreateNewsRequest) (entity.News, er
 		ImageFileName:    req.ImageFileName,
 		Categories:       req.Categories,
 		CreatedAt:        time.Now(),
+		CreatorUserID:    req.CreatorUserID,
 	}
 
 	newsRes, err := s.repo.InsertNews(news)

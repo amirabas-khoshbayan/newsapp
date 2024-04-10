@@ -39,17 +39,17 @@ func (h Handler) createNews(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, echo.Map{"error": err.Error()})
 	}
 
-	res, err := h.newsSvc.CreateNewNews(req)
-	if err != nil {
-		return c.JSON(http.StatusBadRequest, echo.Map{"error": err.Error()})
-	}
-
 	parseUintID, err := strconv.ParseUint(claims.UserID, 10, 64)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, echo.Map{"error": err.Error()})
 	}
 
-	res.CreatorUserID = uint(parseUintID)
+	req.CreatorUserID = uint(parseUintID)
+
+	res, err := h.newsSvc.CreateNewNews(req)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, echo.Map{"error": err.Error()})
+	}
 
 	return c.JSON(http.StatusOK, res)
 }
@@ -61,7 +61,8 @@ func (h Handler) getNewsList(c echo.Context) error {
 
 	return nil
 }
-func (h Handler) addToWaitingList(c echo.Context) error {
+func (h Handler) addToWaitingNewsList(c echo.Context) error {
+	id := c.Param("id")
 
 	return nil
 }
