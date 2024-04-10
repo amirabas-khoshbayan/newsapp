@@ -1,6 +1,18 @@
 version: '3.7'
 
 services:
+  newsapp-redis:
+    image: bitnami/redis:6.2
+    container_name: newsapp-redis
+    restart: always
+    ports:
+      - '6380:6379'
+      # TODO - remove `no --save "" --appendonly no` from command tp persist data
+    command: redis-server --loglevel warning --protected-mode no --save "" --appendonly no
+    environment:
+      - ALLOW_EMPTY_PASSWORD=yes
+    volumes:
+      - newsapp-redis-data:/data
   newsapp-database:
     image: mysql:8.0
     ports:
@@ -19,3 +31,4 @@ services:
 
 volumes:
   dbdata:
+  newsapp-redis-data:

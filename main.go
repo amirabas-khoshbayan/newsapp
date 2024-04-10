@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"newsapp/adapter/redis"
 	"newsapp/config"
 	"newsapp/delivery/httpserver"
 	"newsapp/logger"
@@ -9,9 +10,11 @@ import (
 	"newsapp/repository/mysql/migrator"
 	"newsapp/repository/mysql/mysqlnews"
 	"newsapp/repository/mysql/mysqluser"
+	"newsapp/repository/redis/redispublish"
 	"newsapp/service/authenticationservice"
 	"newsapp/service/authorizationservice"
 	"newsapp/service/newsservice"
+	"newsapp/service/publishservice"
 	"newsapp/service/userservice"
 	"os"
 	"os/signal"
@@ -28,21 +31,24 @@ func main() {
 	mgr := migrator.New(cfg.MySQL)
 	mgr.Up()
 
-	// init zap logger
+	// init zap logger // TODO - Replace zap with new logger
 	logger.Init(cfg.ZapLogger)
 
 	//mongoConn := mongodb.New(cfg.MongoDB)
 	mySqlConn := mysql.New(cfg.MySQL)
+	redisAdapter := redis.New(cfg.Redis)
+	redisRepo := redispublish.New(redisAdapter)
 
 	//userMongo := mongodbuser.New(mongoConn)
 	userMySql := mysqluser.New(mySqlConn)
 	newsMySql := mysqlnews.New(mySqlConn)
 	authSvc := authenticationservice.New(cfg.Auth)
+	authorizeSvc := authorizationservice.New(mySqlConn)
 	userSvc := userservice.New(userMySql, authSvc)
 	newsSvc := newsservice.New(newsMySql)
-	authorizeSvc := authorizationservice.New(mySqlConn)
+	publishSvc := publishservice.New(cfg.PublishService, redisRepo, redisAdapter)
 
-	server := httpserver.New(cfg, userSvc, newsSvc, authSvc, authorizeSvc)
+	server := httpserver.New(cfg, userSvc, newsSvc, publishSvc, authSvc, authorizeSvc)
 	go func() {
 		server.Serve()
 	}()

@@ -1,6 +1,7 @@
 package publishhandler
 
 import (
+	"errors"
 	"github.com/labstack/echo/v4"
 	"newsapp/service/authenticationservice"
 	"newsapp/service/authorizationservice"
@@ -22,6 +23,14 @@ func New(publishSvc publishservice.Service, authorizeSvc authorizationservice.Se
 }
 
 func (h Handler) publishNews(c echo.Context) error {
+
+	return nil
+}
+func (h Handler) addToWaitingNewsList(c echo.Context) error {
+	id := c.Param("id")
+	if id == "" {
+		return errors.New("invalid id")
+	}
 
 	return nil
 }

@@ -13,8 +13,6 @@ func (h Handler) SetNewsRoutes(e *echo.Echo) {
 		middleware.CheckPermissions(h.authSvc, h.authorizeSvc, entity.AdminRole)).Name = "createNews"
 	newsGroup.GET("/view/:id", h.getNews).Name = "getNews"
 	newsGroup.GET("/list", h.getNewsList).Name = "getNewsList"
-	newsGroup.PUT("/:id/add/to/waiting-list", h.addToWaitingNewsList, middleware.Auth(h.authSvc),
-		middleware.CheckPermissions(h.authSvc, h.authorizeSvc, entity.AdminRole)).Name = "addToWaitingList"
 
 	// TODO - add  Edit / Delete routes
 }

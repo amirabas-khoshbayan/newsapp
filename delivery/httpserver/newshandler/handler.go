@@ -61,8 +61,3 @@ func (h Handler) getNewsList(c echo.Context) error {
 
 	return nil
 }
-func (h Handler) addToWaitingNewsList(c echo.Context) error {
-	id := c.Param("id")
-
-	return nil
-}
