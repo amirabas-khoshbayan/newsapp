@@ -7,26 +7,36 @@ import (
 	"github.com/labstack/echo/v4/middleware"
 	"go.uber.org/zap"
 	"newsapp/config"
+	"newsapp/delivery/httpserver/newshandler"
+	"newsapp/delivery/httpserver/publishhandler"
 	"newsapp/delivery/httpserver/userhandler"
 	"newsapp/logger"
 	"newsapp/pkg/customcontext"
 	"newsapp/service/authenticationservice"
 	"newsapp/service/authorizationservice"
 	"newsapp/service/newsservice"
+	"newsapp/service/publishservice"
 	"newsapp/service/userservice"
 	"newsapp/validator/customvalidator"
 )
 
 type Server struct {
-	config       config.Config
-	userHandler  userhandler.Handler
-	authorizeSvc authorizationservice.Service
-	authSvc      authenticationservice.Service
-	Echo         *echo.Echo
+	config         config.Config
+	userHandler    userhandler.Handler
+	newsHandler    newshandler.Handler
+	publishHandler publishhandler.Handler
+	authorizeSvc   authorizationservice.Service
+	authSvc        authenticationservice.Service
+	Echo           *echo.Echo
 }
 
-func New(config config.Config, userSvc userservice.Service, newsSvc newsservice.Service, authSvc authenticationservice.Service, authorizeSvc authorizationservice.Service) Server {
-	return Server{Echo: echo.New(), config: config, userHandler: userhandler.New(userSvc, authSvc, authorizeSvc)}
+func New(config config.Config, userSvc userservice.Service, newsSvc newsservice.Service, publishSvc publishservice.Service,
+	authSvc authenticationservice.Service, authorizeSvc authorizationservice.Service) Server {
+	return Server{Echo: echo.New(), config: config,
+		userHandler:    userhandler.New(userSvc, authSvc, authorizeSvc),
+		newsHandler:    newshandler.New(newsSvc, authorizeSvc, authSvc),
+		publishHandler: publishhandler.New(publishSvc, authorizeSvc, authSvc),
+	}
 }
 
 func (s Server) Serve() {
@@ -40,6 +50,7 @@ func (s Server) Serve() {
 			return next(apiContext)
 		}
 	})
+
 	s.Echo.Use(middleware.RequestLoggerWithConfig(middleware.RequestLoggerConfig{
 		LogLatency:       true,
 		LogProtocol:      true,
@@ -84,6 +95,8 @@ func (s Server) Serve() {
 	//Routs
 	s.Echo.GET("/health-check", s.healthCheck)
 	s.userHandler.SetUserRoutes(s.Echo)
+	s.newsHandler.SetNewsRoutes(s.Echo)
+	s.publishHandler.SetPublishRoutes(s.Echo)
 
 	if config.AppConfig.HttpServer.UseCustomValidator {
 		s.Echo.Validator = &customvalidator.Custom{Validator: validator.New()}
