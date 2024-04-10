@@ -17,8 +17,19 @@ mysql:
   username: "newsapp"
   password: "newsappt0lk2o20"
 
+redis:
+  port: 6380
+  host: "localhost"
+  db: 0
+  password: ""
+
 zap_logger:
   file_path: "./logs/log.json"
   use_local_time: false
   file_max_size_in_mb: 10
   file_max_age_in_days: 30
+
+
+publish_service:
+  waiting_timeout: "1m"
+

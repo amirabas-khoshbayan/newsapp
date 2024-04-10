@@ -6,7 +6,7 @@ import (
 )
 
 func (d *DB) InsertNews(news entity.News) (entity.News, error) {
-	result, err := d.newsConn.Conn().Exec(`INSERT INTO user(title, short_description, description,image_file_name,creator_user_id) VALUES(?,?,?,?,?) `,
+	result, err := d.newsConn.Conn().Exec(`INSERT INTO news(title, short_description, description,image_file_name,creator_user_id) VALUES(?,?,?,?,?) `,
 		news.Title, news.ShortDescription, news.Description, news.ImageFileName, news.CreatorUserID)
 	if err != nil {
 		return entity.News{}, err
