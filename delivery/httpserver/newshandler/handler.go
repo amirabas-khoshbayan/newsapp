@@ -2,9 +2,13 @@ package newshandler
 
 import (
 	"github.com/labstack/echo/v4"
+	"net/http"
+	"newsapp/param/newsparam"
+	"newsapp/pkg/customcontext"
 	"newsapp/service/authenticationservice"
 	"newsapp/service/authorizationservice"
 	"newsapp/service/newsservice"
+	"strconv"
 )
 
 type Handler struct {
@@ -22,8 +26,32 @@ func New(newsSvc newsservice.Service, authorizeSvc authorizationservice.Service,
 }
 
 func (h Handler) createNews(c echo.Context) error {
+	customContext := c.(*customcontext.ApiContext)
+	headerToken := customContext.GetHeaderToken()
+	claims, err := h.authSvc.ParseToken(headerToken)
 
-	return nil
+	var req newsparam.CreateNewsRequest
+	if err := c.Bind(&req); err != nil {
+		return c.JSON(http.StatusBadRequest, echo.Map{"error": err.Error()})
+	}
+
+	if err := c.Validate(&req); err != nil {
+		return c.JSON(http.StatusBadRequest, echo.Map{"error": err.Error()})
+	}
+
+	res, err := h.newsSvc.CreateNewNews(req)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, echo.Map{"error": err.Error()})
+	}
+
+	parseUintID, err := strconv.ParseUint(claims.UserID, 10, 64)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, echo.Map{"error": err.Error()})
+	}
+
+	res.CreatorUserID = uint(parseUintID)
+
+	return c.JSON(http.StatusOK, res)
 }
 func (h Handler) getNews(c echo.Context) error {
 

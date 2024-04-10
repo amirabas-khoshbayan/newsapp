@@ -14,7 +14,7 @@ func New(conn *mysql.MySQLDB) *DB {
 	return &DB{newsConn: conn}
 }
 
-func scanUser(scanner mysql.Scanner) (entity.News, error) {
+func scanNews(scanner mysql.Scanner) (entity.News, error) {
 	var createdAt time.Time
 	var news entity.News
 
