@@ -3,6 +3,9 @@ package publishhandler
 import (
 	"errors"
 	"github.com/labstack/echo/v4"
+	"net/http"
+	"newsapp/param/newsparam"
+	"newsapp/pkg/httpresponse"
 	"newsapp/service/authenticationservice"
 	"newsapp/service/authorizationservice"
 	"newsapp/service/publishservice"
@@ -28,9 +31,25 @@ func (h Handler) publishNews(c echo.Context) error {
 }
 func (h Handler) addToWaitingNewsList(c echo.Context) error {
 	id := c.Param("id")
+	param := newsparam.AddToWaitingListRequest{}
 	if id == "" {
-		return errors.New("invalid id")
+		return c.JSON(http.StatusBadRequest, httpresponse.New(httpresponse.HttpResponse{
+			Code:    http.StatusBadRequest,
+			Message: errors.New("invalid id").Error(),
+		}))
 	}
 
-	return nil
+	resWaitingList, err := h.publishSvc.AddNewsToWaitingList(c.Request().Context(), param)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, httpresponse.New(httpresponse.HttpResponse{
+			Code:    http.StatusBadRequest,
+			Message: err.Error(),
+		}))
+	}
+
+	return c.JSON(http.StatusOK, httpresponse.New(httpresponse.HttpResponse{
+		Code:    http.StatusOK,
+		Message: "success",
+		Data:    resWaitingList,
+	}))
 }
