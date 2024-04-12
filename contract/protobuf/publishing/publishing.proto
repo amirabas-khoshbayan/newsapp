@@ -1,0 +1,10 @@
+syntax = "proto3";
+
+package publishing;
+
+option  go_package = "contract/goproto/publishing";
+
+message PublishingNews {
+  string category = 1;
+  repeated uint64 news_ids = 2;
+}

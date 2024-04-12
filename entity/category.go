@@ -8,3 +8,7 @@ const (
 	Sports   Category = "sports"
 	Politics Category = "politics"
 )
+
+func CategoryList() []Category {
+	return []Category{Business, Health, Sports, Politics}
+}

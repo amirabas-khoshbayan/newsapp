@@ -5,6 +5,8 @@ import (
 	"newsapp/contract/broker"
 	"newsapp/entity"
 	"newsapp/param/newsparam"
+	"newsapp/pkg/protobufencoder"
+	"sync"
 	"time"
 )
 
@@ -42,4 +44,36 @@ func (s Service) AddNewsToWaitingList(ctx context.Context, req newsparam.AddToWa
 	}
 
 	return newsparam.AddToWaitingListResponse{Timeout: s.config.WaitingTimeout}, nil
+}
+func (s Service) PublishWaitedNewsList(ctx context.Context) error {
+
+	var wg sync.WaitGroup
+	for _, cat := range entity.CategoryList() {
+		wg.Add(1)
+		go s.PublishNews(ctx, cat, &wg)
+	}
+
+	wg.Wait()
+
+	return nil
+}
+func (s Service) PublishNews(ctx context.Context, category entity.Category, wg *sync.WaitGroup) {
+
+	defer wg.Done()
+
+	waitingNews, err := s.repo.GetWaitingListNewsByCategory(ctx, category)
+	if err != nil {
+		return
+	}
+
+	publishedNewsToBeRemoved := make([]uint, 0)
+	for _, news := range waitingNews {
+		protoBufNews := entity.PublishedNews{Category: news.Category, NewsIDs: []uint{news.NewsID}}
+
+		go s.publisher.Publish(entity.PublishingNewsPublishedEvent, protobufencoder.EncodePublishingNewsPublishedEvent(protoBufNews))
+
+		publishedNewsToBeRemoved = append(publishedNewsToBeRemoved, news.NewsID)
+	}
+
+	go s.repo.RemoveNewsFromWaitingList(category, publishedNewsToBeRemoved)
 }
