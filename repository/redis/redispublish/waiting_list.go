@@ -3,6 +3,7 @@ package redispublish
 import (
 	"context"
 	"fmt"
+	"github.com/labstack/gommon/log"
 	"github.com/redis/go-redis/v9"
 	"newsapp/entity"
 	"strconv"
@@ -58,7 +59,17 @@ func (d DB) GetWaitingListNewsByCategory(ctx context.Context, category entity.Ca
 	return reult, nil
 }
 
-func (d DB) RemoveNewsFromWaitingList(category entity.Category, newsIDs []uint) {
-	//TODO implement me
-	panic("implement me")
+func (d DB) RemoveNewsFromWaitingList(ctx context.Context, category entity.Category, newsIDs []uint) {
+	members := make([]any, 0)
+	for _, iD := range newsIDs {
+		members = append(members, strconv.Itoa(int(iD)))
+	}
+
+	result, err := d.adapter.Client().ZRem(ctx, getCategoryKey(category), members...).Result()
+	if err != nil {
+		log.Errorf("remove from waiting list : %v\n", err)
+
+	}
+
+	log.Infof("%d items removed from %s", result, getCategoryKey(category))
 }

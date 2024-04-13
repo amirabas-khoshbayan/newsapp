@@ -21,7 +21,7 @@ type Publish interface {
 type Repository interface {
 	AddNewsToWaitingList(ctx context.Context, newsID uint, category entity.Category) error
 	GetWaitingListNewsByCategory(ctx context.Context, category entity.Category) ([]entity.WaitingNews, error)
-	RemoveNewsFromWaitingList(category entity.Category, newsIDs []uint)
+	RemoveNewsFromWaitingList(ctx context.Context, category entity.Category, newsIDs []uint)
 }
 
 type Service struct {
@@ -75,5 +75,5 @@ func (s Service) PublishNews(ctx context.Context, category entity.Category, wg *
 		publishedNewsToBeRemoved = append(publishedNewsToBeRemoved, news.NewsID)
 	}
 
-	go s.repo.RemoveNewsFromWaitingList(category, publishedNewsToBeRemoved)
+	go s.repo.RemoveNewsFromWaitingList(ctx, category, publishedNewsToBeRemoved)
 }
