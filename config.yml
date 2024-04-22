@@ -33,3 +33,5 @@ zap_logger:
 publish_service:
   waiting_timeout: "1m"
 
+scheduler:
+  publish_waited_news_in_seconds: 30

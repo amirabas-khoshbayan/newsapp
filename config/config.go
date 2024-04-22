@@ -5,6 +5,7 @@ import (
 	"newsapp/logger"
 	"newsapp/repository/mongodb"
 	"newsapp/repository/mysql"
+	"newsapp/scheduler"
 	"newsapp/service/authenticationservice"
 	"newsapp/service/publishservice"
 )
@@ -22,6 +23,7 @@ type Config struct {
 	ZapLogger      logger.Config                `yaml:"zap_logger"`
 	Redis          redis.Config                 `yaml:"redis"`
 	PublishService publishservice.Config        `yaml:"publish_service"`
+	Scheduler      scheduler.Config             `yaml:"scheduler"`
 }
 
 var AppConfig Config

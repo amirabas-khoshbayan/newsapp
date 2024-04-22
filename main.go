@@ -11,6 +11,7 @@ import (
 	"newsapp/repository/mysql/mysqlnews"
 	"newsapp/repository/mysql/mysqluser"
 	"newsapp/repository/redis/redispublish"
+	"newsapp/scheduler"
 	"newsapp/service/authenticationservice"
 	"newsapp/service/authorizationservice"
 	"newsapp/service/newsservice"
@@ -18,6 +19,7 @@ import (
 	"newsapp/service/userservice"
 	"os"
 	"os/signal"
+	"sync"
 	"time"
 )
 
@@ -47,6 +49,15 @@ func main() {
 	userSvc := userservice.New(userMySql, authSvc)
 	newsSvc := newsservice.New(newsMySql)
 	publishSvc := publishservice.New(cfg.PublishService, redisRepo, redisAdapter)
+
+	done := make(chan bool)
+	var wg sync.WaitGroup
+	go func() {
+		sch := scheduler.New(cfg.Scheduler, publishSvc)
+
+		wg.Add(1)
+		sch.Start(done, &wg)
+	}()
 
 	server := httpserver.New(cfg, userSvc, newsSvc, publishSvc, authSvc, authorizeSvc)
 	go func() {
